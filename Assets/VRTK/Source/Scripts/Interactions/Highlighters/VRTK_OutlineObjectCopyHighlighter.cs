@@ -1,4 +1,4 @@
-// Outline Object Copy|Highlighters|40030
+﻿// Outline Object Copy|Highlighters|40030
 namespace VRTK.Highlighters
 {
     using UnityEngine;
@@ -270,7 +270,7 @@ namespace VRTK.Highlighters
                         ci.mesh = copyMesh.mesh;
                         ci.subMeshIndex = i;
                         ci.transform = copyMesh.transform.localToWorldMatrix;
-                        combine.Add(ci);
+                        VRTK_SharedMethods.AddListValue(ref combine, ci);
                     }
 
                     highlightMesh.mesh = new Mesh();

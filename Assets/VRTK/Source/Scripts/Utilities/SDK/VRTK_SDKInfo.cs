@@ -68,7 +68,7 @@ namespace VRTK
             {
                 VRTK_SDKInfo sdkInfo = new VRTK_SDKInfo();
                 sdkInfo.SetUp(typeof(BaseType), typeof(FallbackType), actualTypeName, description.index);
-                sdkInfos.Add(sdkInfo);
+                VRTK_SharedMethods.AddListValue(ref sdkInfos, sdkInfo);
             }
 
             return sdkInfos.ToArray();

@@ -63,13 +63,13 @@ namespace VRTK
 
         protected float regrabTimer;
         protected float reuseTimer;
-        protected List<GameObject> touchers;
+        protected List<GameObject> touchers = new List<GameObject>();
 
         protected virtual void OnEnable()
         {
             regrabTimer = 0f;
             reuseTimer = 0f;
-            touchers = new List<GameObject>();
+            touchers.Clear();
             EnableListeners();
         }
 
@@ -150,13 +150,13 @@ namespace VRTK
 
         protected virtual void ManageTouchers(GameObject interactingObject, bool add)
         {
-            if (add && !touchers.Contains(interactingObject))
+            if(add)
             {
-                touchers.Add(interactingObject);
+                VRTK_SharedMethods.AddListValue(ref touchers, interactingObject);
             }
-            else if (!add && touchers.Contains(interactingObject))
+            else
             {
-                touchers.Remove(interactingObject);
+                VRTK_SharedMethods.RemoveListValue(ref touchers, interactingObject);
             }
         }
 

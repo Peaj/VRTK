@@ -161,10 +161,7 @@ namespace VRTK
                 Collider[] gameObjectColliders = (searchChildren ? gameObjects[i].GetComponentsInChildren<Collider>(includeInactive) : gameObjects[i].GetComponents<Collider>());
                 for (int j = 0; j < gameObjectColliders.Length; j++)
                 {
-                    if (!foundColliders.Contains(gameObjectColliders[j]))
-                    {
-                        foundColliders.Add(gameObjectColliders[j]);
-                    }
+                    VRTK_SharedMethods.AddListValue(ref foundColliders, gameObjectColliders[j]);
                 }
             }
             return foundColliders.ToArray<Collider>();
@@ -470,6 +467,109 @@ namespace VRTK
         {
             Vector3[] worldDirections = (givenTransform != null ? new Vector3[] { givenTransform.right, givenTransform.up, givenTransform.forward } : new Vector3[] { Vector3.right, Vector3.up, Vector3.forward });
             return worldDirections[(int)Mathf.Clamp(axisIndex, 0f, worldDirections.Length)];
+        }
+
+        /// <summary>
+        /// The AddListValue method attempts to add a value in the given list if the value does not already exist. `forceAdd = true` will always add a new value to the list even if it already exists.
+        /// </summary>
+        /// <typeparam name="TValue">The datatype for the list value.</typeparam>
+        /// <param name="list">The list to retrieve the value from.</param>
+        /// <param name="value">The value to attempt to add to the list.</param>
+        /// <param name="forceAdd">If this is `true` then the value provided will always be appended to the list. If this is `false` the value provided will only be added to the list if it doesn't already exist.</param>
+        /// <returns>Returns `true` if the given value was successfully added to the list. Returns `false` if the given value already existed in the list and `forceAdd = false`.</returns>
+        public static bool AddListValue<TValue>(ref List<TValue> list, TValue value, bool forceAdd = false)
+        {
+            if (forceAdd || !list.Contains(value))
+            {
+                list.Add(value);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// The RemoveListValue method attempts to remove an entry from the given list based on the given value.
+        /// </summary>
+        /// <typeparam name="TValue">The datatype for the list value.</typeparam>
+        /// <param name="list">The list to remove the value from.</param>
+        /// <param name="value">The value to remove.</param>
+        /// <returns>Returns `true` if the value was found and removed. Returns `false` if the value was not found and therefore not removed.</returns>
+        public static bool RemoveListValue<TValue>(ref List<TValue> list, TValue value)
+        {
+            if (list.Contains(value))
+            {
+                list.Remove(value);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// The GetDictionaryValue method attempts to retrieve a value from a given dictionary for the given key. It removes the need for a double dictionary lookup to ensure the key is valid and has the option of also setting the missing key value to ensure the dictionary entry is valid.
+        /// </summary>
+        /// <typeparam name="TKey">The datatype for the dictionary key.</typeparam>
+        /// <typeparam name="TValue">The datatype for the dictionary value.</typeparam>
+        /// <param name="dictionary">The dictionary to retrieve the value from.</param>
+        /// <param name="key">The key to retrieve the value for.</param>
+        /// <param name="setMissingKey">If this is `true` and the given key is not present, then the dictionary value for the given key will be set to the `setValue` parameter. If this is `false` and the given key is not present then the `setValue` parameter will be returned as the value.</param>
+        /// <param name="setValue">The value to utilise when either setting the missing key (if `setMissingKey` is `true`) or the default value to return when no key is found (if `setMissingKey` is `false`).</param>
+        /// <returns>The found value for the given key in the given dictionary, or the default value if no key is found.</returns>
+        public static TValue GetDictionaryValue<TKey, TValue>(Dictionary<TKey, TValue> dictionary, TKey key, bool setMissingKey = false, TValue setValue = default(TValue))
+        {
+            if (dictionary == null)
+            {
+                return default(TValue);
+            }
+
+            TValue outputValue;
+            if (!dictionary.TryGetValue(key, out outputValue))
+            {
+                if (setMissingKey)
+                {
+                    dictionary.Add(key, setValue);
+                }
+                outputValue = setValue;
+            }
+            return outputValue;
+        }
+
+        /// <summary>
+        /// The AddDictionaryValue method attempts to add a value for the given key in the given dictionary if the key does not already exist. `forceAdd = true` will always set the value even if they key exists.
+        /// </summary>
+        /// <typeparam name="TKey">The datatype for the dictionary key.</typeparam>
+        /// <typeparam name="TValue">The datatype for the dictionary value.</typeparam>
+        /// <param name="dictionary">The dictionary to set the value for.</param>
+        /// <param name="key">The key to set the value for.</param>
+        /// <param name="value">The value to set at the given key in the given dictionary.</param>
+        /// <param name="forceAdd">If this is `true` then the value for the given key will always be set to the provided value. If this is `false` then the value for the given key will only be set if the given key is not found in the given dictionary.</param>
+        public static void AddDictionaryValue<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue value, bool forceAdd = false)
+        {
+            if (forceAdd)
+            {
+                dictionary[key] = value;
+            }
+            else
+            {
+                GetDictionaryValue(dictionary, key, true, value);
+            }
+        }
+
+        /// <summary>
+        /// The RemoveDictionaryKey method attempts to remove an entry from the given dictionary based on the given key.
+        /// </summary>
+        /// <typeparam name="TKey">The datatype for the dictionary key.</typeparam>
+        /// <typeparam name="TValue">The datatype for the dictionary value.</typeparam>
+        /// <param name="dictionary">The dictionary to remove the entry from.</param>
+        /// <param name="key">The key to remove the entry for.</param>
+        /// <returns>Returns `true` if the entry for the given key was removed successfully, returns `false` if the entry for the given key was not found in the dictionary.</returns>
+        public static bool RemoveDictionaryKey<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key)
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                dictionary.Remove(key);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

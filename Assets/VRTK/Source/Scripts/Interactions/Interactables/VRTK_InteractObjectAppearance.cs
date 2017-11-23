@@ -325,8 +325,8 @@ namespace VRTK
                     EmitGameObjectEvent(objectToToggle, gameObjectShow, interactionType);
                 }
 
-                currentRenderStates[objectToToggle] = rendererShow;
-                currentGameObjectStates[objectToToggle] = gameObjectShow;
+                VRTK_SharedMethods.AddDictionaryValue(ref currentRenderStates, objectToToggle, rendererShow, true);
+                VRTK_SharedMethods.AddDictionaryValue(ref currentGameObjectStates, objectToToggle, gameObjectShow, true);
             }
         }
 
@@ -340,9 +340,10 @@ namespace VRTK
         {
             if (currentAffectingObject != null)
             {
-                if (affectingRoutines.ContainsKey(currentAffectingObject) && affectingRoutines[currentAffectingObject] != null)
+                Coroutine currentAffectingRoutine = VRTK_SharedMethods.GetDictionaryValue(affectingRoutines, currentAffectingObject);
+                if (currentAffectingRoutine != null)
                 {
-                    StopCoroutine(affectingRoutines[currentAffectingObject]);
+                    StopCoroutine(currentAffectingRoutine);
                 }
             }
             else
@@ -406,11 +407,8 @@ namespace VRTK
             {
                 GameObject nearTouchAffectedObject = (objectToAffect == null ? GetActualController(e.interactingObject) : objectToAffect);
                 CancelRoutines(nearTouchAffectedObject);
-                if (!nearTouchingObjects.Contains(nearTouchAffectedObject))
-                {
-                    nearTouchingObjects.Add(nearTouchAffectedObject);
-                }
-                affectingRoutines[nearTouchAffectedObject] = StartCoroutine(ToggleStateAfterTime(nearTouchAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, nearTouchAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch));
+                VRTK_SharedMethods.AddListValue(ref nearTouchingObjects, nearTouchAffectedObject);
+                VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, nearTouchAffectedObject, StartCoroutine(ToggleStateAfterTime(nearTouchAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, nearTouchAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch)), true);
             }
         }
 
@@ -420,11 +418,8 @@ namespace VRTK
             {
                 GameObject nearTouchAffectedObject = (objectToAffect == null ? GetActualController(e.interactingObject) : objectToAffect);
                 CancelRoutines(nearTouchAffectedObject);
-                if (nearTouchingObjects.Contains(nearTouchAffectedObject))
-                {
-                    nearTouchingObjects.Remove(nearTouchAffectedObject);
-                }
-                affectingRoutines[nearTouchAffectedObject] = StartCoroutine(ToggleStateAfterTime(nearTouchAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, nearUntouchAppearanceDelay, VRTK_InteractableObject.InteractionType.NearUntouch));
+                VRTK_SharedMethods.RemoveListValue(ref nearTouchingObjects, nearTouchAffectedObject);
+                VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, nearTouchAffectedObject, StartCoroutine(ToggleStateAfterTime(nearTouchAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, nearUntouchAppearanceDelay, VRTK_InteractableObject.InteractionType.NearUntouch)), true);
             }
         }
 
@@ -434,11 +429,8 @@ namespace VRTK
             {
                 GameObject touchAffectedObject = (objectToAffect == null ? GetActualController(e.interactingObject) : objectToAffect);
                 CancelRoutines(touchAffectedObject);
-                if (!touchingObjects.Contains(touchAffectedObject))
-                {
-                    touchingObjects.Add(touchAffectedObject);
-                }
-                affectingRoutines[touchAffectedObject] = StartCoroutine(ToggleStateAfterTime(touchAffectedObject, gameObjectActiveOnTouch, rendererVisibleOnTouch, touchAppearanceDelay, VRTK_InteractableObject.InteractionType.Touch));
+                VRTK_SharedMethods.AddListValue(ref touchingObjects, touchAffectedObject);
+                VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, touchAffectedObject, StartCoroutine(ToggleStateAfterTime(touchAffectedObject, gameObjectActiveOnTouch, rendererVisibleOnTouch, touchAppearanceDelay, VRTK_InteractableObject.InteractionType.Touch)), true);
             }
         }
 
@@ -448,17 +440,14 @@ namespace VRTK
             {
                 GameObject touchAffectedObject = (objectToAffect == null ? GetActualController(e.interactingObject) : objectToAffect);
                 CancelRoutines(touchAffectedObject);
-                if (touchingObjects.Contains(touchAffectedObject))
-                {
-                    touchingObjects.Remove(touchAffectedObject);
-                }
+                VRTK_SharedMethods.RemoveListValue(ref touchingObjects, touchAffectedObject);
                 if (objectToMonitor.IsNearTouched())
                 {
-                    affectingRoutines[touchAffectedObject] = StartCoroutine(ToggleStateAfterTime(touchAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, untouchAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, touchAffectedObject, StartCoroutine(ToggleStateAfterTime(touchAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, untouchAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch)), true);
                 }
                 else
                 {
-                    affectingRoutines[touchAffectedObject] = StartCoroutine(ToggleStateAfterTime(touchAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, untouchAppearanceDelay, VRTK_InteractableObject.InteractionType.Untouch));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, touchAffectedObject, StartCoroutine(ToggleStateAfterTime(touchAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, untouchAppearanceDelay, VRTK_InteractableObject.InteractionType.Untouch)), true);
                 }
             }
         }
@@ -469,7 +458,7 @@ namespace VRTK
             {
                 GameObject grabAffectedObject = (objectToAffect == null ? GetActualController(e.interactingObject) : objectToAffect);
                 CancelRoutines(grabAffectedObject);
-                affectingRoutines[grabAffectedObject] = StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnGrab, rendererVisibleOnGrab, grabAppearanceDelay, VRTK_InteractableObject.InteractionType.Grab));
+                VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, grabAffectedObject, StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnGrab, rendererVisibleOnGrab, grabAppearanceDelay, VRTK_InteractableObject.InteractionType.Grab)), true);
             }
         }
 
@@ -481,19 +470,19 @@ namespace VRTK
                 CancelRoutines(grabAffectedObject);
                 if (objectToMonitor.IsUsing())
                 {
-                    affectingRoutines[grabAffectedObject] = StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnUse, rendererVisibleOnUse, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.Ungrab));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, grabAffectedObject, StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnUse, rendererVisibleOnUse, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.Ungrab)), true);
                 }
                 else if (objectToMonitor.IsTouched())
                 {
-                    affectingRoutines[grabAffectedObject] = StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnTouch, rendererVisibleOnTouch, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.Ungrab));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, grabAffectedObject, StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnTouch, rendererVisibleOnTouch, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.Ungrab)), true);
                 }
                 else if (objectToMonitor.IsNearTouched())
                 {
-                    affectingRoutines[grabAffectedObject] = StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, grabAffectedObject, StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch)), true);
                 }
                 else
                 {
-                    affectingRoutines[grabAffectedObject] = StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.Ungrab));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, grabAffectedObject, StartCoroutine(ToggleStateAfterTime(grabAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, ungrabAppearanceDelay, VRTK_InteractableObject.InteractionType.Ungrab)), true);
                 }
             }
         }
@@ -504,7 +493,7 @@ namespace VRTK
             {
                 GameObject useAffectedObject = (objectToAffect == null ? GetActualController(e.interactingObject) : objectToAffect);
                 CancelRoutines(useAffectedObject);
-                affectingRoutines[useAffectedObject] = StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnUse, rendererVisibleOnUse, useAppearanceDelay, VRTK_InteractableObject.InteractionType.Use));
+                VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, useAffectedObject, StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnUse, rendererVisibleOnUse, useAppearanceDelay, VRTK_InteractableObject.InteractionType.Use)), true);
             }
         }
 
@@ -516,19 +505,19 @@ namespace VRTK
                 CancelRoutines(useAffectedObject);
                 if (objectToMonitor.IsGrabbed())
                 {
-                    affectingRoutines[useAffectedObject] = StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnGrab, rendererVisibleOnGrab, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.Unuse));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, useAffectedObject, StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnGrab, rendererVisibleOnGrab, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.Unuse)), true);
                 }
                 else if (objectToMonitor.IsTouched())
                 {
-                    affectingRoutines[useAffectedObject] = StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnTouch, rendererVisibleOnTouch, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.Unuse));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, useAffectedObject, StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnTouch, rendererVisibleOnTouch, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.Unuse)), true);
                 }
                 else if (objectToMonitor.IsNearTouched())
                 {
-                    affectingRoutines[useAffectedObject] = StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, useAffectedObject, StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveOnNearTouch, rendererVisibleOnNearTouch, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.NearTouch)), true);
                 }
                 else
                 {
-                    affectingRoutines[useAffectedObject] = StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.Unuse));
+                    VRTK_SharedMethods.AddDictionaryValue(ref affectingRoutines, useAffectedObject, StartCoroutine(ToggleStateAfterTime(useAffectedObject, gameObjectActiveByDefault, rendererVisibleByDefault, unuseAppearanceDelay, VRTK_InteractableObject.InteractionType.Unuse)), true);
                 }
             }
         }

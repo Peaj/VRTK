@@ -12,11 +12,7 @@
         {
             if (controllerIndex < uint.MaxValue)
             {
-                if (controllerReferences.ContainsKey(controllerIndex))
-                {
-                    return controllerReferences[controllerIndex];
-                }
-                return new VRTK_ControllerReference(controllerIndex);
+                return VRTK_SharedMethods.GetDictionaryValue(controllerReferences, controllerIndex, false, new VRTK_ControllerReference(controllerIndex));
             }
             return null;
         }
@@ -32,22 +28,14 @@
                 controllerIndex = VRTK_SDK_Bridge.GetControllerIndex(GetValidObjectFromHand(VRTK_SDK_Bridge.GetControllerModelHand(controllerObject)));
             }
 
-            if (controllerReferences.ContainsKey(controllerIndex))
-            {
-                return controllerReferences[controllerIndex];
-            }
-            return new VRTK_ControllerReference(controllerIndex);
+            return VRTK_SharedMethods.GetDictionaryValue(controllerReferences, controllerIndex, false, new VRTK_ControllerReference(controllerIndex));
         }
 
         public static VRTK_ControllerReference GetControllerReference(SDK_BaseController.ControllerHand controllerHand)
         {
             GameObject scriptAlias = GetValidObjectFromHand(controllerHand);
             uint controllerIndex = VRTK_SDK_Bridge.GetControllerIndex(scriptAlias);
-            if (controllerReferences.ContainsKey(controllerIndex))
-            {
-                return controllerReferences[controllerIndex];
-            }
-            return new VRTK_ControllerReference(scriptAlias);
+            return VRTK_SharedMethods.GetDictionaryValue(controllerReferences, controllerIndex, false, new VRTK_ControllerReference(scriptAlias));
         }
 
         public static bool IsValid(VRTK_ControllerReference controllerReference)
@@ -171,14 +159,9 @@
 
         protected virtual void AddToCache()
         {
-            if (IsValid() && controllerReferences.ContainsKey(storedControllerIndex))
+            if (IsValid())
             {
-                controllerReferences.Remove(storedControllerIndex);
-            }
-
-            if (IsValid() && !controllerReferences.ContainsKey(storedControllerIndex))
-            {
-                controllerReferences.Add(storedControllerIndex, this);
+                VRTK_SharedMethods.AddDictionaryValue(ref controllerReferences, storedControllerIndex, this, true);
             }
         }
 

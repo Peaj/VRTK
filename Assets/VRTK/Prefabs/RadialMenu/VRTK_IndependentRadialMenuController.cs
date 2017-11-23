@@ -37,8 +37,8 @@ namespace VRTK
         [Tooltip("The object the RadialMenu should face towards. If left empty, it will automatically try to find the Headset Camera.")]
         public GameObject rotateTowards;
 
-        protected List<GameObject> interactingObjects; // Objects (controllers) that are either colliding with the menu or clicking the menu
-        protected List<GameObject> collidingObjects; // Just objects that are currently colliding with the menu or its parent
+        protected List<GameObject> interactingObjects = new List<GameObject>(); // Objects (controllers) that are either colliding with the menu or clicking the menu
+        protected List<GameObject> collidingObjects = new List<GameObject>(); // Just objects that are currently colliding with the menu or its parent
         protected SphereCollider menuCollider;
         protected Coroutine delayedSetColliderEnabledRoutine;
         protected Vector3 desiredColliderCenter;
@@ -87,8 +87,8 @@ namespace VRTK
             }
 
             // Reset variables
-            interactingObjects = new List<GameObject>();
-            collidingObjects = new List<GameObject>();
+            interactingObjects.Clear();
+            collidingObjects.Clear();
             if (delayedSetColliderEnabledRoutine != null)
             {
                 StopCoroutine(delayedSetColliderEnabledRoutine);
@@ -261,9 +261,8 @@ namespace VRTK
         protected virtual void ObjectTouched(object sender, InteractableObjectEventArgs e)
         {
             DoShowMenu(CalculateAngle(e.interactingObject), sender);
-            collidingObjects.Add(e.interactingObject);
-
-            interactingObjects.Add(e.interactingObject);
+            VRTK_SharedMethods.AddListValue(ref collidingObjects, e.interactingObject);
+            VRTK_SharedMethods.AddListValue(ref interactingObjects, e.interactingObject);
             if (addMenuCollider && menuCollider != null)
             {
                 SetColliderState(true, e);
@@ -276,12 +275,11 @@ namespace VRTK
 
         protected virtual void ObjectUntouched(object sender, InteractableObjectEventArgs e)
         {
-            collidingObjects.Remove(e.interactingObject);
+            VRTK_SharedMethods.RemoveListValue(ref collidingObjects, e.interactingObject);
             if (((!menu.executeOnUnclick || !isClicked) && menu.hideOnRelease) || (Object)sender == this)
             {
                 DoHideMenu(hideAfterExecution, sender);
-
-                interactingObjects.Remove(e.interactingObject);
+                VRTK_SharedMethods.RemoveListValue(ref interactingObjects, e.interactingObject);
                 if (addMenuCollider && menuCollider != null)
                 {
                     // In case there's any gap between the normal collider and the menuCollider, delay a bit. Cancelled if collider is re-entered

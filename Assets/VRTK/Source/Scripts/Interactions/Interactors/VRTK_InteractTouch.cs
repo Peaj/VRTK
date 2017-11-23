@@ -298,10 +298,7 @@ namespace VRTK
 
         protected virtual void OnTriggerExit(Collider collider)
         {
-            if (touchedObjectActiveColliders.Contains(collider))
-            {
-                touchedObjectActiveColliders.Remove(collider);
-            }
+            VRTK_SharedMethods.RemoveListValue(ref touchedObjectActiveColliders, collider);
         }
 
         protected virtual void OnTriggerStay(Collider collider)
@@ -365,9 +362,9 @@ namespace VRTK
 
         protected virtual void AddActiveCollider(Collider collider)
         {
-            if (touchedObject != null && !touchedObjectActiveColliders.Contains(collider) && touchedObjectColliders.Contains(collider))
+            if (touchedObject != null && touchedObjectColliders.Contains(collider))
             {
-                touchedObjectActiveColliders.Add(collider);
+                VRTK_SharedMethods.AddListValue(ref touchedObjectActiveColliders, collider);
             }
         }
 
@@ -378,9 +375,9 @@ namespace VRTK
             Collider[] touchedObjectChildColliders = touchedObject.GetComponentsInChildren<Collider>();
             for (int i = 0; i < touchedObjectChildColliders.Length; i++)
             {
-                touchedObjectColliders.Add(touchedObjectChildColliders[i]);
+                VRTK_SharedMethods.AddListValue(ref touchedObjectColliders, touchedObjectChildColliders[i]);
             }
-            touchedObjectActiveColliders.Add(collider);
+            VRTK_SharedMethods.AddListValue(ref touchedObjectActiveColliders, collider);
         }
 
         protected virtual void ToggleControllerVisibility(bool visible)

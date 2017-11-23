@@ -489,10 +489,9 @@ namespace VRTK
             GameObject currentNearTouchingGameObject = (currentNearTouchingObject != null ? currentNearTouchingObject.gameObject : null);
             if (currentNearTouchingGameObject != null)
             {
-                if (!nearTouchingObjects.Contains(currentNearTouchingGameObject))
+                if (VRTK_SharedMethods.AddListValue(ref nearTouchingObjects, currentNearTouchingGameObject))
                 {
                     ToggleEnableState(true);
-                    nearTouchingObjects.Add(currentNearTouchingGameObject);
                     OnInteractableObjectNearTouched(SetInteractableObjectEvent(currentNearTouchingGameObject));
                 }
             }
@@ -505,10 +504,9 @@ namespace VRTK
         public virtual void StopNearTouching(VRTK_InteractNearTouch previousNearTouchingObject = null)
         {
             GameObject previousNearTouchingGameObject = (previousNearTouchingObject != null ? previousNearTouchingObject.gameObject : null);
-            if (previousNearTouchingGameObject != null && nearTouchingObjects.Contains(previousNearTouchingGameObject))
+            if (previousNearTouchingGameObject != null && VRTK_SharedMethods.RemoveListValue(ref nearTouchingObjects, previousNearTouchingGameObject))
             {
                 OnInteractableObjectNearUntouched(SetInteractableObjectEvent(previousNearTouchingGameObject));
-                nearTouchingObjects.Remove(previousNearTouchingGameObject);
             }
         }
 
@@ -522,10 +520,9 @@ namespace VRTK
             if (currentTouchingGameObject != null)
             {
                 IgnoreColliders(currentTouchingGameObject);
-                if (!touchingObjects.Contains(currentTouchingGameObject))
+                if (VRTK_SharedMethods.AddListValue(ref touchingObjects, currentTouchingGameObject))
                 {
                     ToggleEnableState(true);
-                    touchingObjects.Add(currentTouchingGameObject);
                     OnInteractableObjectTouched(SetInteractableObjectEvent(currentTouchingGameObject));
                 }
             }
@@ -538,11 +535,10 @@ namespace VRTK
         public virtual void StopTouching(VRTK_InteractTouch previousTouchingObject = null)
         {
             GameObject previousTouchingGameObject = (previousTouchingObject != null ? previousTouchingObject.gameObject : null);
-            if (previousTouchingGameObject != null && touchingObjects.Contains(previousTouchingGameObject))
+            if (previousTouchingGameObject != null && VRTK_SharedMethods.RemoveListValue(ref touchingObjects, previousTouchingGameObject))
             {
                 ResetUseState(previousTouchingGameObject);
                 OnInteractableObjectUntouched(SetInteractableObjectEvent(previousTouchingGameObject));
-                touchingObjects.Remove(previousTouchingGameObject);
             }
         }
 
@@ -895,17 +891,15 @@ namespace VRTK
         {
             if (state)
             {
-                if (!hoveredSnapObjects.Contains(snapDropZone.gameObject))
+                if (VRTK_SharedMethods.AddListValue(ref hoveredSnapObjects, snapDropZone.gameObject))
                 {
-                    hoveredSnapObjects.Add(snapDropZone.gameObject);
                     OnInteractableObjectEnteredSnapDropZone(SetInteractableObjectEvent(snapDropZone.gameObject));
                 }
             }
             else
             {
-                if (hoveredSnapObjects.Contains(snapDropZone.gameObject))
+                if (VRTK_SharedMethods.RemoveListValue(ref hoveredSnapObjects, snapDropZone.gameObject))
                 {
-                    hoveredSnapObjects.Remove(snapDropZone.gameObject);
                     OnInteractableObjectExitedSnapDropZone(SetInteractableObjectEvent(snapDropZone.gameObject));
                 }
             }
@@ -1241,7 +1235,7 @@ namespace VRTK
             }
             ForceReleaseGrab();
             RemoveTrackPoint();
-            grabbingObjects.Add(currentGrabbingObject);
+            VRTK_SharedMethods.AddListValue(ref grabbingObjects, currentGrabbingObject);
             SetTrackPoint(currentGrabbingObject);
             if (!IsSwappable())
             {
@@ -1252,9 +1246,8 @@ namespace VRTK
 
         protected virtual void SecondaryControllerGrab(GameObject currentGrabbingObject)
         {
-            if (!grabbingObjects.Contains(currentGrabbingObject))
+            if (VRTK_SharedMethods.AddListValue(ref grabbingObjects, currentGrabbingObject))
             {
-                grabbingObjects.Add(currentGrabbingObject);
                 secondaryControllerAttachPoint = CreateAttachPoint(currentGrabbingObject.name, "Secondary", currentGrabbingObject.transform);
 
                 if (secondaryGrabActionScript != null)
@@ -1280,9 +1273,8 @@ namespace VRTK
 
         protected virtual void SecondaryControllerUngrab(GameObject previousGrabbingObject)
         {
-            if (grabbingObjects.Contains(previousGrabbingObject))
+            if (VRTK_SharedMethods.RemoveListValue(ref grabbingObjects, previousGrabbingObject))
             {
-                grabbingObjects.Remove(previousGrabbingObject);
                 Destroy(secondaryControllerAttachPoint.gameObject);
                 secondaryControllerAttachPoint = null;
                 if (secondaryGrabActionScript != null)

@@ -821,7 +821,7 @@ namespace VRTK
 
         protected virtual void UpdateStandingPosition(Vector2 currentHeadsetPosition)
         {
-            standingPositionHistory.Add(currentHeadsetPosition);
+            VRTK_SharedMethods.AddListValue(ref standingPositionHistory, currentHeadsetPosition, true);
             if (standingPositionHistory.Count > standingHistorySamples)
             {
                 if (!isLeaning && currentCollidingObject == null)
@@ -933,7 +933,7 @@ namespace VRTK
 
                 if (objectColliders.Length > 0)
                 {
-                    ignoreCollisionsOnGameObjects.Add(ignoreCollisionsWith[i]);
+                    VRTK_SharedMethods.AddListValue(ref ignoreCollisionsOnGameObjects, ignoreCollisionsWith[i]);
                 }
             }
         }

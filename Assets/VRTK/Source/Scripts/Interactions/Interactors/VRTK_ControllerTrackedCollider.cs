@@ -79,10 +79,7 @@ namespace VRTK
             }
             else
             {
-                if (!VRTK_ObjectCache.registeredTrackedColliderToInteractTouches.ContainsKey(interactTouch))
-                {
-                    VRTK_ObjectCache.registeredTrackedColliderToInteractTouches.Add(interactTouch, this);
-                }
+                VRTK_SharedMethods.AddDictionaryValue(ref VRTK_ObjectCache.registeredTrackedColliderToInteractTouches, interactTouch, this);
             }
             base.OnEnable();
         }
@@ -92,7 +89,7 @@ namespace VRTK
             base.OnDisable();
             ManageActivationListeners(false);
             Cleanup(false);
-            VRTK_ObjectCache.registeredTrackedColliderToInteractTouches.Remove(interactTouch);
+            VRTK_SharedMethods.RemoveDictionaryKey(ref VRTK_ObjectCache.registeredTrackedColliderToInteractTouches, interactTouch);
         }
 
         protected override void ControllerReady(VRTK_ControllerReference passedControllerReference)
